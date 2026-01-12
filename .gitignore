@@ -1,3 +1,7 @@
 .vercel
 *.png
 node_modules/
+test_local.ipynb
+
+.env
+.env.local.next

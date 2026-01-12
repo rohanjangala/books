@@ -43,31 +43,34 @@ def idea(topic: str):
     system_prompt += "You have vast experience in the world of non-fiction books, and also the recommended websites to read."
     system_prompt += "For a given topic(s), you can quickly discern the appropriate books to recommend and provide their reading/purchase links."
     user_prompt = f"""
-    1) Start with 'Five books you should read about {topic}:' and then give a 1-2 lined simple description of the {topic}. Then add "Each book has been verified for legitimacy, and the links provided direct to reputable sources for reading or purchase." Don't put anything else.
+    1) Give a 1-2 lined simple description of the {topic}. Then add "Each book has been verified for legitimacy, and the links provided direct to reputable sources for reading or purchase." Don't put anything else.
     2) Then tell the reader about five books one should read about the {topic} along with a 2-3 description for each book followed by its link. Don't add anything else.
     ##Important: 
         *Give the list formatted with numbered-list, appropriate bolding. 
-        *Verify the link before recommending. The books and their links have to be real and legit. 
+        *Make sure to give the link for each book. Verify this link before recommending. The books and their links have to be real and legit. 
         *Make a note at the end: If a link becomes outdated or inaccessible, searching the book title on the respective platform should yield the correct page.*
         *Don't add further unnecessary text or notes.##
 
     """
 
-    client = ChatCompletionsClient(
-    endpoint=endpoint,
-    credential=AzureKeyCredential(github_api_key),
-    )
+    # client = ChatCompletionsClient(
+    # endpoint=endpoint,
+    # credential=AzureKeyCredential(github_api_key),
+    # )
+
+    client = OpenAI(base_url=endpoint, api_key=github_api_key)
+    prompt = [
+    {
+    "role": "system", 
+    "content": system_prompt
+    },
+    {
+    "role": "user", 
+    "content": user_prompt
+    }
+    ]
     
-    response = client.complete(
-    messages=[
-        SystemMessage(system_prompt),
-        UserMessage(user_prompt),
-    ],
-    temperature=1.0,
-    top_p=1.0,  
-    model="xai/grok-3",
-    stream=True,
-    )
+    response = client.chat.completions.create(model="openai/gpt-4.1-nano", messages=prompt, stream=True)
 
     def event_stream():
         for chunk in response:
