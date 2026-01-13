@@ -12,7 +12,7 @@ endpoint = "https://models.github.ai/inference"
 github_api_key = os.environ.get("GITHUB_API_KEY")
 model = "openai/gpt-4.1-nano"
 
-@app.get("/responses/topics", response_class=PlainTextResponse)
+@app.get("/api/topics", response_class=PlainTextResponse)
 def topic():
     client = OpenAI(base_url=endpoint, api_key=github_api_key)
     system_prompt = """You are a long-term entrepreneur and enthusiast. 
@@ -37,7 +37,7 @@ def topic():
     topic = response.choices[0].message.content
     return topic
 
-@app.get("/responses/books")
+@app.get("/api/books")
 def idea(topic: str):
     system_prompt="You are an expert non-fiction book recommender."
     system_prompt += "You have vast experience in the world of non-fiction books, and also the recommended websites to read."
