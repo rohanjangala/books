@@ -2,7 +2,9 @@
 
 This is a curated book recommendation application powered by AI. This web app generates unique topics relevant to the 21st century and provides top-tier book recommendations for each. This uses next.js, fastapi & python (backend), github models (gpt-4.1-nano, grok-3).
 
-You can have a look at the site: [Books](https://books-henna-theta.vercel.app/)!
+You can have a look at first production site: [Books](https://books-henna-theta.vercel.app/)!
+
+This repo is an updated version with a payment gateway.
 
 ## Prerequisites
 
@@ -35,48 +37,36 @@ yarn install
 ```
 
 **Backend Dependencies:**
-It is recommended to use a virtual environment.
+It is recommended to use only vercel deployment as the production builds are easy.
 
-```bash
-# Create a virtual environment
-python3 -m venv venv
 
-# Activate the virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
+**Important Note:** Do not try to run `npm run build` locally as it often yields errors. The project is optimized for deployment on Vercel.
 
-# Install requirements
-pip install -r requirements.txt
-```
+### 3. Deploy on Vercel
 
-### 3. Configure Environment Variables
+The easiest and recommended way to run this application is by deploying it to [Vercel](https://vercel.com/).
 
-Create a `.env` file in the root directory (or `.env.local` for Next.js) and add your GitHub API Key. This is required for the Azure/OpenAI inference.
+1.  **Install Vercel CLI (Optional but recommended):**
+    ```bash
+    npm i -g vercel
+    ```
 
-```bash
-GITHUB_API_KEY=your_github_api_key_here
-```
+2.  **Link your project:**
+    Run the following command in your terminal and follow the prompts to link your local project to a Vercel project:
+    ```bash
+    vercel
+    ```
 
-### 4. Run the Application
+3.  **Configure Environment Variables:**
+    - Go to your project settings on the Vercel dashboard.
+    - Navigate to **Settings > Environment Variables**.
+    - Add a new variable named `GITHUB_API_KEY` with your actual API key as the value.
 
-Start the development server:
+4.  **Deploy:**
+    You can deploy directly from the CLI:
+    ```bash
+    vercel --prod
+    ```
+    Or, if you have linked your GitHub repository, simply push your changes to the main branch, and Vercel will automatically build and deploy your application.
 
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. The Next.js development server will automatically handle the Python API backend (located in `api/index.py`).
-
-## Deploy on Vercel
-
-The easiest way to deploy this app is using the [Vercel Platform](https://vercel.com/new).
-
-1.  Push your code to a Git repository (GitHub, GitLab, BitBucket).
-2.  Import the project into Vercel.
-3.  **Environment Variables**: In the Vercel project settings, add the `GITHUB_API_KEY` to the Environment Variables section.
-4.  **Build Settings**: Next.js presets should work automatically. Vercel will detect `api/` and deploy it as Serverless Functions.
-5.  Deploy!
-
-Check out [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Vercel will automatically detect the Next.js frontend and the Python backend (in `api/index.py`) and set everything up for you.
