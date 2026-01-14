@@ -12,9 +12,18 @@ endpoint = "https://models.github.ai/inference"
 github_api_key = os.environ.get("GITHUB_API_KEY")
 model = "openai/gpt-4.1-nano"
 
+azure_client = ChatCompletionsClient(
+    endpoint=endpoint,
+    credential=AzureKeyCredential(github_api_key),
+)
+
+openai_client = OpenAI(base_url=endpoint, api_key=github_api_key)
+
 @app.get("/api/topics", response_class=PlainTextResponse)
 def topic():
-    client = OpenAI(base_url=endpoint, api_key=github_api_key)
+    # client = OpenAI(base_url=endpoint, api_key=github_api_key)
+    client = azure_client
+
     system_prompt = """You are a long-term entrepreneur and enthusiast. 
     You are tasked with coming up with unique topics that is useful for remaining of twenty-first century. 
     The current year is 2026. You inspect the current trends and future prediction to manifest surreal topics.
@@ -33,7 +42,15 @@ def topic():
         "content": user_prompt
         }
     ]
-    response = client.chat.completions.create(model="openai/gpt-4.1-nano", messages=prompt, stream=False)
+    response = client.complete(
+        messages=[
+            SystemMessage(system_prompt),
+            UserMessage(user_prompt),
+        ],
+        temperature=1.0,
+        top_p=1.0,
+        model="openai/gpt-4.1-nano"
+    )
     topic = response.choices[0].message.content
     return topic
 
@@ -51,33 +68,17 @@ def idea(topic: str):
 
     """
 
-    # client = ChatCompletionsClient(
-    # endpoint=endpoint,
-    # credential=AzureKeyCredential(github_api_key),
-    # )
-    # response = client.complete(
-    # messages=[SystemMessage(system_prompt),UserMessage(user_prompt)],
-    # temperature=0.7,
-    # top_p=1.0,  
-    # model="xai/grok-3",
-    # stream=True,
-    # )
-
-    client = OpenAI(base_url=endpoint, api_key=github_api_key)
-    prompt = [
-    {"role": "system", "content": system_prompt},
-    {"role": "user", "content": user_prompt}
-    ]
-    response = client.chat.completions.create(
-        model="openai/gpt-4.1-nano", 
-        messages=prompt, 
-        stream=True,
-        temperature=0.5,
+    client = azure_client
+    response = client.complete(
+    messages=[SystemMessage(system_prompt),UserMessage(user_prompt)],
+    temperature=0.7,
+    top_p=1.0,  
+    model="xai/grok-3-mini",
+    stream=True,
     )
 
     def event_stream():
         for chunk in response:
-            # Check if choices exist and are not empty
             if chunk.choices and len(chunk.choices) > 0:
                 delta = chunk.choices[0].delta
                 if delta and hasattr(delta, 'content'):
@@ -89,4 +90,3 @@ def idea(topic: str):
                         yield "\n"
         
     return StreamingResponse(event_stream(), media_type="text/event-stream")
-    # return response.choices[0].message.content
