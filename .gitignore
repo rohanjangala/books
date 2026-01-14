@@ -2,6 +2,7 @@
 *.png
 node_modules/
 test_local.ipynb
+notes.md
 
 .env
 .env.local
