@@ -1,15 +1,65 @@
-import { Checkout } from "@dodopayments/nextjs";
+import DodoPayments from "dodopayments";
+import { NextRequest, NextResponse } from "next/server";
 
-export const GET = Checkout({
+const dodopayments = new DodoPayments({
+  environment: "test_mode",
   bearerToken: process.env.DODO_PAYMENTS_TEST_API_KEY!,
-  returnUrl: process.env.DODO_PAYMENTS_RETURN_URL,
-  environment: process.env.DODO_PAYMENTS_ENVIRONMENT === "live_mode" ? "live_mode" : "test_mode",
-  type: "static",
 });
 
-export const POST = Checkout({
-  bearerToken: process.env.DODO_PAYMENTS_TEST_API_KEY!,
-  returnUrl: process.env.DODO_PAYMENTS_RETURN_URL,
-  environment: process.env.DODO_PAYMENTS_ENVIRONMENT === "live_mode" ? "live_mode" : "test_mode",
-  type: "session",
-});
+export async function POST(req: NextRequest) {
+  try {
+    // Generate checkout URL
+    const body = await req.json();
+    const { customer } = body;
+
+    const regex = new RegExp("^[^@]+@[^@]+.[^@]+$");
+
+    if (!customer?.name)
+      return NextResponse.json(
+        {
+          message: "Please provide a valid name",
+        },
+        { status: 400 }
+      );
+
+    if (!customer?.email || !regex.test(customer.email))
+      return NextResponse.json(
+        {
+          message: "Please provide a valid email",
+        },
+        { status: 400 }
+      );
+
+    const customerName = customer.name;
+    const customerEmail = customer.email;
+
+    const checkout = await dodopayments.checkoutSessions.create({
+      product_cart: body.product_cart || [
+        {
+          product_id: "pdt_0NW6hKoj54tNPS3nrhusm",
+          quantity: 1,
+        },
+      ],
+      customer: {
+        name: customerName,
+        email: customerEmail,
+      },
+      return_url: `${req.nextUrl.origin}/api/verify`,
+    });
+
+    return NextResponse.json({
+      message: "Checkout URL created successfully",
+      checkout_url: checkout.checkout_url,
+    });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      {
+        message: "Internal server error",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
