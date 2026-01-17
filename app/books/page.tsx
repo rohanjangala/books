@@ -139,7 +139,7 @@ export default function Home() {
                         {isLoading ? (
                             <div className="flex items-center justify-center py-12">
                                 <div className="animate-pulse text-gray-400">
-                                    Generating your recommendations...
+                                    Give it utmost 30 seconds to fetch the good side of internet...
                                 </div>
                             </div>
                         ) : (

@@ -60,7 +60,8 @@ def idea(topic: str):
     system_prompt += "You have vast experience in the world of non-fiction books, and also the recommended websites to read."
     system_prompt += "For a given topic(s), you can quickly discern the appropriate books to recommend and provide their reading/purchase links."
     user_prompt = f"""
-    1) Tell the reader three books one should read about the {topic} in a numbered-list format, with each book having a 1-line description followed by its link. Don't add anything else.
+    1) Understand the {topic} sensibly well to first give a 1-2 line description of the topic.
+    2) Then tell the reader three books one should read about the {topic} in a numbered-list format. Include the name of each book, a 1-line description, and the link to the book. Don't add anything else.
     ##Important: 
         *Make sure to give the link for each book. Verify this link before recommending. The books and their links have to be real and legit. 
         *Make a note at the end: These recommendations are based on well-established books in the field of {topic}. If a link becomes outdated or inaccessible, searching the book title on the respective platform should yield the correct page.
