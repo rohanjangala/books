@@ -6,6 +6,13 @@ const dodopayments = new DodoPayments({
   bearerToken: process.env.DODO_PAYMENTS_TEST_API_KEY!,
 });
 
+// Simple access token: base64 encode timestamp + secret suffix
+function generateAccessToken(): string {
+  const timestamp = Date.now();
+  const payload = `${timestamp}_books_access`;
+  return Buffer.from(payload).toString('base64');
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Generate checkout URL
@@ -44,7 +51,7 @@ export async function POST(req: NextRequest) {
         name: customerName,
         email: customerEmail,
       },
-      return_url: `${req.nextUrl.origin}/books`,
+      return_url: `${req.nextUrl.origin}/books?access_token=${generateAccessToken()}`,
     });
 
     return NextResponse.json({

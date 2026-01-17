@@ -1,22 +1,73 @@
 "use client"
 
 import { useEffect, useState, useRef } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Suspense } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 
-export default function Home() {
+// Token validity: 1 hour (in milliseconds)
+const TOKEN_VALIDITY_MS = 60 * 60 * 1000;
+
+function validateAccessToken(token: string): boolean {
+    try {
+        const decoded = atob(token);
+        const [timestampStr, ...rest] = decoded.split('_');
+        const suffix = rest.join('_');
+
+        if (suffix !== 'books_access') return false;
+
+        const timestamp = parseInt(timestampStr, 10);
+        if (isNaN(timestamp)) return false;
+
+        // Check if token is within validity period
+        const now = Date.now();
+        return (now - timestamp) < TOKEN_VALIDITY_MS;
+    } catch {
+        return false;
+    }
+}
+
+function BooksContent() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+
+    const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
     const [contentMap, setContentMap] = useState<Record<string, string>>({});
     const [topic, setTopic] = useState<string>('…loading');
     const [topics, setTopics] = useState<string[]>([]);
 
-    // Track if we are currently loading the SELECTED topic (for the first time)
-    // We derive "loading" state from whether contentMap has data for the current topic
-
     const activeStreamRef = useRef<EventSource | null>(null);
 
-    // Fetch topics on mount
+    // Check authorization on mount
     useEffect(() => {
+        const urlToken = searchParams.get('access_token');
+        const storedToken = sessionStorage.getItem('books_access_token');
+
+        // Try URL token first (from payment redirect)
+        if (urlToken && validateAccessToken(urlToken)) {
+            sessionStorage.setItem('books_access_token', urlToken);
+            setIsAuthorized(true);
+            // Clean URL by removing the token parameter
+            window.history.replaceState({}, '', '/books');
+            return;
+        }
+
+        // Fall back to stored token (for page refreshes within session)
+        if (storedToken && validateAccessToken(storedToken)) {
+            setIsAuthorized(true);
+            return;
+        }
+
+        // Not authorized
+        setIsAuthorized(false);
+    }, [searchParams]);
+
+    // Fetch topics on mount (only if authorized)
+    useEffect(() => {
+        if (!isAuthorized) return;
+
         fetch('/api/topics')
             .then(res => res.text())
             .then(topicText => {
@@ -41,7 +92,7 @@ export default function Home() {
                 console.error('Error fetching topic:', err);
                 setTopic('Error loading topic');
             });
-    }, []);
+    }, [isAuthorized]);
 
     // Set document title
     useEffect(() => {
@@ -50,6 +101,7 @@ export default function Home() {
 
     // Logic: Fetch content when topic changes, ONLY if not already cached
     useEffect(() => {
+        if (!isAuthorized) return;
         if (topic === '…loading' || topic.startsWith('Error')) return;
 
         // Cleanup previous stream if any (essential!)
@@ -77,7 +129,6 @@ export default function Home() {
         };
 
         evt.onerror = () => {
-            // console.error('SSE error, closing');
             evt.close();
             if (activeStreamRef.current === evt) activeStreamRef.current = null;
         };
@@ -87,10 +138,38 @@ export default function Home() {
                 activeStreamRef.current.close();
             }
         };
-    }, [topic]);
+    }, [topic, isAuthorized]);
+
+    // Show loading while checking auth
+    if (isAuthorized === null) {
+        return (
+            <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+                <div className="animate-pulse text-gray-500">Verifying access...</div>
+            </main>
+        );
+    }
+
+    // Show access denied message
+    if (!isAuthorized) {
+        return (
+            <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-md text-center">
+                    <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Access Required</h1>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                        Please complete your purchase to access book recommendations.
+                    </p>
+                    <button
+                        onClick={() => router.push('/')}
+                        className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    >
+                        Go to Homepage
+                    </button>
+                </div>
+            </main>
+        );
+    }
 
     const currentContent = contentMap[topic] || '';
-    // Show loading ONLY if content is empty (meaning not in cache and not streamed yet)
     const isLoading = !currentContent;
 
     return (
@@ -155,5 +234,18 @@ export default function Home() {
                 </div>
             </div>
         </main>
+    );
+}
+
+// Default export with Suspense wrapper for useSearchParams
+export default function Home() {
+    return (
+        <Suspense fallback={
+            <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+                <div className="animate-pulse text-gray-500">Loading...</div>
+            </main>
+        }>
+            <BooksContent />
+        </Suspense>
     );
 }

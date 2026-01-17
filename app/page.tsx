@@ -107,7 +107,7 @@ export default function Home() {
                             </div>
 
                             {/* Products Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                            <div className="flex flex-wrap justify-center gap-6 max-w-4xl mx-auto">
                                 {products.map((product) => {
                                     const priceString = (product.price / 100).toFixed(2);
 
