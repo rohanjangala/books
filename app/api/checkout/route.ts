@@ -2,8 +2,8 @@ import DodoPayments from "dodopayments";
 import { NextRequest, NextResponse } from "next/server";
 
 const dodopayments = new DodoPayments({
-  environment: "test_mode",
-  bearerToken: process.env.DODO_PAYMENTS_TEST_API_KEY!,
+  environment: "live_mode",
+  bearerToken: process.env.DODO_PAYMENTS_API_KEY!,
 });
 
 // Simple access token: base64 encode timestamp + secret suffix
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     const checkout = await dodopayments.checkoutSessions.create({
       product_cart: body.product_cart || [
         {
-          product_id: "pdt_0NW6hKoj54tNPS3nrhusm",
+          product_id: "pdt_0NWYeXRAx3KBxYFAZSUWg",
           quantity: 1,
         },
       ],
@@ -58,11 +58,23 @@ export async function POST(req: NextRequest) {
       message: "Checkout URL created successfully",
       checkout_url: checkout.checkout_url,
     });
-  } catch (err) {
-    console.error(err);
+  } catch (err: unknown) {
+    console.error("Checkout error:", err);
+
+    // Check if API key is set
+    const hasApiKey = !!process.env.DODO_PAYMENTS_API_KEY;
+    console.log("API Key present:", hasApiKey);
+
+    // Extract error details
+    let errorMessage = "Internal server error";
+    if (err instanceof Error) {
+      errorMessage = err.message;
+    }
+
     return NextResponse.json(
       {
-        message: "Internal server error",
+        message: errorMessage,
+        debug: { hasApiKey }
       },
       {
         status: 500,

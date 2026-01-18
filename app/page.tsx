@@ -82,6 +82,7 @@ export default function Home() {
                     <header className="border-b border-[#1a1a1a] px-6 py-4">
                         <div className="max-w-6xl mx-auto flex items-center justify-between">
                             <div className="flex items-center space-x-3">
+                                <span className="text-[#666] text-xs">Secured by</span>
                                 <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
                                     <div className="w-3 h-3 bg-black rounded-[2px]"></div>
                                 </div>
@@ -94,56 +95,75 @@ export default function Home() {
                     </header>
 
                     {/* Main Content */}
-                    <div className="flex-1 w-full pt-20 pb-20 px-4 sm:px-6 lg:px-8">
-                        <div className="max-w-5xl mx-auto">
+                    <div className="flex-1 w-full py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
+                        <div className="max-w-4xl mx-auto">
                             {/* Hero Section */}
-                            <div className="text-center max-w-2xl mx-auto mb-20">
-                                <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6 tracking-tight">
-                                    Simple pricing.
+                            <div className="text-center mb-8 sm:mb-12">
+                                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4 tracking-tight whitespace-nowrap">
+                                    Non-Fiction for the curious mind.
                                 </h1>
-                                <p className="text-lg text-neutral-400 mb-8 leading-relaxed">
-                                    One-time payment. No hidden fees.
+                                <p className="text-base sm:text-lg text-neutral-400 leading-relaxed">
+                                    Simple pricing.
                                 </p>
                             </div>
 
-                            {/* Products Grid */}
-                            <div className="flex flex-wrap justify-center gap-6 max-w-4xl mx-auto">
+                            {/* Two Column Layout: Video + Product Card */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-stretch">
+                                {/* Demo Video */}
+                                <div className="w-full flex flex-col">
+                                    <p className="text-xs sm:text-sm text-neutral-500 mb-3 text-center lg:text-left">See how it works</p>
+                                    <div className="relative rounded-xl overflow-hidden border border-neutral-800 bg-black shadow-2xl shadow-black/50 flex-1 flex items-center">
+                                        <video
+                                            className="w-full h-auto"
+                                            controls
+                                            playsInline
+                                            autoPlay
+                                            loop
+                                            muted
+                                        >
+                                            <source src="/demo.mp4" type="video/mp4" />
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                                </div>
+
+                                {/* Product Card */}
                                 {products.map((product) => {
                                     const priceString = (product.price / 100).toFixed(2);
 
                                     return (
                                         <div
                                             key={product.product_id}
-                                            className="group relative overflow-hidden rounded-xl bg-black border border-neutral-800 hover:border-neutral-700 transition-colors duration-300"
+                                            className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-neutral-900 to-black border border-neutral-800 hover:border-neutral-600 transition-all duration-300 shadow-xl"
                                         >
-                                            <div className="p-8 flex flex-col h-full">
-                                                <h3 className="text-xl font-bold text-white mb-2">
+                                            <div className="p-5 sm:p-6 lg:p-8 flex flex-col h-full">
+                                                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
                                                     {product.name}
                                                 </h3>
 
-                                                <p className="text-neutral-400 text-sm mb-8 leading-relaxed">
+                                                <p className="text-neutral-400 text-sm mb-4 sm:mb-6 leading-relaxed">
                                                     {product.description}
                                                 </p>
 
-                                                <div className="mb-8">
+                                                <div className="mb-4 sm:mb-6">
                                                     <div className="flex items-baseline gap-1">
-                                                        <span className="text-3xl font-bold text-white tracking-tight">
+                                                        <span className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
                                                             ${priceString}
                                                         </span>
                                                         <span className="text-neutral-500 text-sm font-medium">
-                                                            /refresh
+                                                            /hour
                                                         </span>
                                                     </div>
                                                 </div>
 
-                                                <ul className="mb-8 space-y-3 grow">
+                                                <ul className="mb-4 sm:mb-6 space-y-2 sm:space-y-3 grow">
                                                     {product.features.map((feature, index) => (
                                                         <li
                                                             key={index}
-                                                            className="flex items-start gap-3 text-sm text-neutral-300"
+                                                            className="flex items-start gap-2 sm:gap-3 text-xs sm:text-sm text-neutral-300"
                                                         >
                                                             <svg
-                                                                className="w-5 h-5 text-white shrink-0"
+                                                                className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 shrink-0 mt-0.5"
                                                                 fill="none"
                                                                 viewBox="0 0 24 24"
                                                                 stroke="currentColor"
@@ -162,7 +182,7 @@ export default function Home() {
 
                                                 <button
                                                     onClick={() => handleProductSelect(product)}
-                                                    className="w-full py-3 px-4 rounded-lg font-medium text-black bg-white hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                                                    className="w-full py-2.5 sm:py-3 px-4 rounded-lg font-medium text-black bg-white hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 cursor-pointer text-sm sm:text-base"
                                                 >
                                                     <span>Get Recommended Books</span>
                                                 </button>
