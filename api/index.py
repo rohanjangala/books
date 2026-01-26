@@ -21,7 +21,6 @@ openai_client = OpenAI(base_url=endpoint, api_key=github_api_key)
 
 @app.get("/api/topics", response_class=PlainTextResponse)
 def topic():
-    # client = OpenAI(base_url=endpoint, api_key=github_api_key)
     client = azure_client
 
     system_prompt = """You are a long-term entrepreneur and enthusiast. 
@@ -74,7 +73,7 @@ def idea(topic: str):
     messages=[SystemMessage(system_prompt),UserMessage(user_prompt)],
     temperature=0.7,
     top_p=1.0,  
-    model="xai/grok-3-mini",
+    model="xai/grok-3",
     stream=True,
     )
 

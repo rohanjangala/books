@@ -12,8 +12,12 @@ Before running this project locally, ensure you have the following installed:
 
 - [Node.js](https://nodejs.org/) (Project was built with v20+)
 - [Python 3.9+](https://www.python.org/)
-- [pip](https://pip.pypa.io/en/stable/installation/) (Optional if you deploy to preview/production) 
+- [pip](https://pip.pypa.io/en/stable/installation/) (Optional if you deploy to preview/production)
 - [GitHub API Key](https://github.com/settings/personal-access-tokens) (Provide access to Models while creating the key)
+
+npm run dev
+
+uvicorn api.index:app --port 8000
 
 ## Local Development Setup
 
@@ -29,6 +33,7 @@ cd books
 ### 2. Install Dependencies
 
 **Frontend Dependencies:**
+
 ```bash
 # This downloads all libraries and creates the node_modules folder
 npm install
@@ -39,34 +44,35 @@ yarn install
 **Backend Dependencies:**
 It is recommended to use only vercel deployment as the production builds are easy.
 
-
 **Important Note:** Do not try to run `npm run build` locally as it often yields errors. The project is optimized for deployment on Vercel.
 
 ### 3. Deploy on Vercel
 
 The easiest and recommended way to run this application is by deploying it to [Vercel](https://vercel.com/).
 
-1.  **Install Vercel CLI (Optional but recommended):**
-    ```bash
-    npm i -g vercel
-    ```
+1. **Install Vercel CLI (Optional but recommended):**
 
-2.  **Link your project:**
-    Run the following command in your terminal and follow the prompts to link your local project to a Vercel project:
-    ```bash
-    vercel
-    ```
+   ```bash
+   npm i -g vercel
+   ```
+2. **Link your project:**
+   Run the following command in your terminal and follow the prompts to link your local project to a Vercel project:
 
-3.  **Configure Environment Variables:**
-    - Go to your project settings on the Vercel dashboard.
-    - Navigate to **Settings > Environment Variables**.
-    - Add a new variable named `GITHUB_API_KEY` with your actual API key as the value.
+   ```bash
+   vercel
+   ```
+3. **Configure Environment Variables:**
 
-4.  **Deploy:**
-    You can deploy directly from the CLI:
-    ```bash
-    vercel --prod
-    ```
-    Or, if you have linked your GitHub repository, simply push your changes to the main branch, and Vercel will automatically build and deploy your application.
+   - Go to your project settings on the Vercel dashboard.
+   - Navigate to **Settings > Environment Variables**.
+   - Add a new variable named `GITHUB_API_KEY` with your actual API key as the value.
+4. **Deploy:**
+   You can deploy directly from the CLI:
+
+   ```bash
+   vercel --prod
+   ```
+
+   Or, if you have linked your GitHub repository, simply push your changes to the main branch, and Vercel will automatically build and deploy your application.
 
 Vercel will automatically detect the Next.js frontend and the Python backend (in `api/index.py`) and set everything up for you.
