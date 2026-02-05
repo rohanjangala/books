@@ -90,7 +90,7 @@ export default function Home() {
 
     return (
         <main className="min-h-screen bg-stone-950">
-            <div className="container mx-auto px-4 py-16 max-w-4xl">
+            <div className="container mx-auto px-4 py-16 max-w-6xl">
                 {/* Header */}
                 <header className="text-center mb-16">
                     <h1 className="text-4xl md:text-5xl font-light tracking-tight text-stone-100 mb-3">
@@ -129,37 +129,69 @@ export default function Home() {
                     </div>
                 </header>
 
-                {/* Content Card */}
-                <div className="max-w-2xl mx-auto">
-                    <div className="bg-stone-900/50 rounded-xl border border-stone-800/50 p-8 md:p-10">
-                        {topic === '…loading' ? (
-                            <div className="flex items-center justify-center py-16">
-                                <div className="flex items-center gap-3 text-stone-500">
-                                    <div className="w-4 h-4 border-2 border-stone-700 border-t-amber-400 rounded-full animate-spin"></div>
-                                    <span className="font-light">Loading topics...</span>
+                {/* Main Content Grid: 3/4 recommendations + 1/4 sidebar */}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    {/* Content Card - 3/4 width */}
+                    <div className="lg:col-span-3">
+                        <div className="bg-stone-900/50 rounded-xl border border-stone-800/50 p-8 md:p-10">
+                            {topic === '…loading' ? (
+                                <div className="flex items-center justify-center py-16">
+                                    <div className="flex items-center gap-3 text-stone-500">
+                                        <div className="w-4 h-4 border-2 border-stone-700 border-t-amber-400 rounded-full animate-spin"></div>
+                                        <span className="font-light">Loading topics...</span>
+                                    </div>
                                 </div>
-                            </div>
-                        ) : isLoading ? (
-                            <div className="flex items-center justify-center py-16">
-                                <div className="text-center">
-                                    <div className="w-6 h-6 border-2 border-stone-700 border-t-amber-400 rounded-full animate-spin mx-auto mb-4"></div>
-                                    <p className="text-stone-400 font-light">
-                                        Fetching recommendations...
-                                    </p>
-                                    <p className="text-stone-600 text-sm mt-2 font-light">
-                                        This may take up to 30 seconds
-                                    </p>
+                            ) : isLoading ? (
+                                <div className="flex items-center justify-center py-16">
+                                    <div className="text-center">
+                                        <div className="w-6 h-6 border-2 border-stone-700 border-t-amber-400 rounded-full animate-spin mx-auto mb-4"></div>
+                                        <p className="text-stone-400 font-light">
+                                            Fetching recommendations...
+                                        </p>
+                                        <p className="text-stone-600 text-sm mt-2 font-light">
+                                            This may take up to 30 seconds
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                        ) : (
-                            <div className="markdown-content prose prose-invert max-w-none prose-headings:font-normal prose-headings:text-stone-200 prose-p:text-stone-400 prose-p:font-light prose-a:text-amber-300 prose-a:no-underline hover:prose-a:underline prose-strong:text-stone-300 prose-strong:font-medium">
-                                <ReactMarkdown
-                                    remarkPlugins={[remarkGfm, remarkBreaks]}
+                            ) : (
+                                <div className="markdown-content prose prose-invert max-w-none prose-headings:font-normal prose-headings:text-stone-200 prose-p:text-stone-400 prose-p:font-light prose-a:text-amber-300 prose-a:no-underline hover:prose-a:underline prose-strong:text-stone-300 prose-strong:font-medium">
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkGfm, remarkBreaks]}
+                                    >
+                                        {currentContent}
+                                    </ReactMarkdown>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Sidebar - 1/4 width */}
+                    <div className="lg:col-span-1">
+                        <div className="bg-stone-900/50 rounded-xl border border-stone-800/50 p-6 sticky top-8">
+                            <div className="text-center">
+                                {/* Goodreads icon */}
+                                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-stone-800 flex items-center justify-center">
+                                    <svg className="w-6 h-6 text-amber-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-stone-200 font-medium mb-2">
+                                    Import from Goodreads
+                                </h3>
+                                <p className="text-stone-500 text-sm font-light mb-5">
+                                    Bring your reading history and get personalized recommendations based on books you've loved.
+                                </p>
+                                <a
+                                    href="/books/import-goodreads"
+                                    className="inline-flex items-center justify-center w-full px-4 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm font-medium hover:bg-amber-500/20 hover:border-amber-500/50 transition-colors"
                                 >
-                                    {currentContent}
-                                </ReactMarkdown>
+                                    Import Library
+                                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
 
