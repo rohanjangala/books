@@ -13,4 +13,4 @@ notes.md
 Untitled.mp4
 
 test.ipynb
-.venv/
+.venv/api/__pycache__/
