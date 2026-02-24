@@ -1,9 +1,11 @@
 "use client"
 
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
+import { isAccessTokenValid } from '@/lib/access-token';
 
 type ImportedBook = {
     title: string;
@@ -130,11 +132,21 @@ export default function Home() {
     const [isParsing, setIsParsing] = useState(false);
     const [parseError, setParseError] = useState<string | null>(null);
 
+    // Checkout modal state
+    const [showCheckout, setShowCheckout] = useState(false);
+    const [checkoutName, setCheckoutName] = useState('');
+    const [checkoutEmail, setCheckoutEmail] = useState('');
+    const [checkoutLoading, setCheckoutLoading] = useState(false);
+    const [checkoutError, setCheckoutError] = useState<string | null>(null);
+    const [hasAccess, setHasAccess] = useState(false);
+    const checkoutRouter = useRouter();
+
     const activeStreamRef = useRef<EventSource | null>(null);
 
-    // Load saved books on mount
+    // Load saved books on mount and check access
     useEffect(() => {
         if (typeof window === "undefined") return;
+        setHasAccess(isAccessTokenValid());
         const saved = window.localStorage.getItem(LOCAL_STORAGE_KEY);
         if (saved) {
             try {
@@ -147,6 +159,34 @@ export default function Home() {
             }
         }
     }, []);
+
+    // Checkout handler
+    const handleCheckout = async () => {
+        if (hasAccess) {
+            checkoutRouter.push('/pro');
+            return;
+        }
+        if (!checkoutName.trim() || !checkoutEmail.trim()) {
+            setCheckoutError('Please fill in both fields.');
+            return;
+        }
+        setCheckoutLoading(true);
+        setCheckoutError(null);
+        try {
+            const res = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ customer: { name: checkoutName.trim(), email: checkoutEmail.trim() } }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Checkout failed');
+            if (data.checkout_url) window.location.href = data.checkout_url;
+        } catch (err: unknown) {
+            setCheckoutError(err instanceof Error ? err.message : 'Something went wrong');
+        } finally {
+            setCheckoutLoading(false);
+        }
+    };
 
     // Fetch random topics
     const fetchTopics = useCallback(() => {
@@ -302,10 +342,10 @@ export default function Home() {
                 {/* Header */}
                 <header className="text-center mb-16">
                     <h1 className="text-4xl md:text-5xl font-light tracking-tight text-stone-100 mb-3">
-                        Discover useful Non-Fiction
+                        Discover useful books
                     </h1>
                     <p className="text-stone-500 text-lg font-light">
-                        AI-powered book recommendations for the twenty-first century
+                        Book recommendations for the 21st century
                     </p>
                 </header>
 
@@ -318,7 +358,7 @@ export default function Home() {
                                 <div className="py-8">
                                     <div className="text-center mb-8">
                                         <h2 className="text-xl text-stone-300 font-light mb-2">
-                                            Pick a topic to explore
+                                            Pick a topic to explore (Free)
                                         </h2>
                                         <p className="text-stone-500 text-sm font-light">
                                             Click any topic below to get curated book recommendations
@@ -410,7 +450,7 @@ export default function Home() {
                                         </svg>
                                     </div>
                                     <span className="text-stone-200 text-sm font-medium">
-                                        {hasImportedBooks ? "Update Library" : "Import Goodreads"}
+                                        {hasImportedBooks ? "Update Library" : "Import Goodreads (Paid)"}
                                     </span>
                                 </div>
                                 <svg className={`w-4 h-4 text-stone-500 transition-transform ${isImportExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -535,15 +575,15 @@ export default function Home() {
                                         </div>
                                     ))}
                                 </div>
-                                <a
-                                    href="/pro"
-                                    className="mt-3 pt-3 border-t border-stone-800/50 flex items-center justify-center gap-1 text-stone-500 hover:text-amber-300 text-xs transition-colors"
+                                <button
+                                    onClick={() => hasAccess ? checkoutRouter.push('/pro') : setShowCheckout(true)}
+                                    className="mt-3 pt-3 border-t border-stone-800/50 flex items-center justify-center gap-1 text-stone-500 hover:text-amber-300 text-xs transition-colors cursor-pointer w-full"
                                 >
-                                    View full stats
+                                    {hasAccess ? 'View full stats' : 'Unlock Pro Stats — $5'}
                                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>
-                                </a>
+                                </button>
                             </div>
                         )}
                     </div>
@@ -551,9 +591,39 @@ export default function Home() {
 
                 {/* Footer */}
                 <footer className="text-center mt-16 text-stone-600 text-sm font-light tracking-wide">
-                    Powered by AI • Curated for curious minds
+                    Curated for curious minds
                 </footer>
             </div>
+
+            {/* Checkout Modal */}
+            {showCheckout && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowCheckout(false)}>
+                    <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-lg text-stone-200 font-medium mb-1">Unlock Pro Recommendations</h3>
+                        <p className="text-stone-500 text-xs mb-5">One-time payment of $5.00 for 1-hour access to personalized AI book recommendations.</p>
+                        <div className="space-y-3 mb-4">
+                            <input
+                                type="text" placeholder="Your name" value={checkoutName}
+                                onChange={e => setCheckoutName(e.target.value)}
+                                className="w-full px-3 py-2 rounded-lg bg-stone-800/80 border border-stone-700/50 text-stone-200 text-sm placeholder:text-stone-600 focus:outline-none focus:border-amber-500/50"
+                            />
+                            <input
+                                type="email" placeholder="Email address" value={checkoutEmail}
+                                onChange={e => setCheckoutEmail(e.target.value)}
+                                className="w-full px-3 py-2 rounded-lg bg-stone-800/80 border border-stone-700/50 text-stone-200 text-sm placeholder:text-stone-600 focus:outline-none focus:border-amber-500/50"
+                            />
+                        </div>
+                        {checkoutError && <p className="text-red-400 text-xs mb-3">{checkoutError}</p>}
+                        <button
+                            onClick={handleCheckout} disabled={checkoutLoading}
+                            className="w-full py-2.5 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 text-sm font-medium hover:bg-amber-500/30 transition-colors disabled:opacity-50 cursor-pointer"
+                        >
+                            {checkoutLoading ? 'Redirecting to checkout...' : 'Continue to Payment'}
+                        </button>
+                        <button onClick={() => setShowCheckout(false)} className="w-full mt-2 py-2 text-stone-600 text-xs hover:text-stone-400 transition-colors cursor-pointer">Cancel</button>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

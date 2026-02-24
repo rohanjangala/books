@@ -1,0 +1,20 @@
+INFO:     Will watch for changes in these directories: ['/home/rohan/projects/workspace/books']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [45500] using StatReload
+INFO:     Started server process [45504]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:47606 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:47606 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:35800 - "POST /api/pro/topics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35806 - "POST /api/pro/books?topic=Synthetic%20Realities&stream=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55162 - "POST /api/pro/books?topic=Quantum%20Futures&stream=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36666 - "POST /api/pro/books?topic=Biohacking%20Evolution&stream=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41722 - "POST /api/pro/books?topic=AI%20Mythologies&stream=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37678 - "POST /api/pro/books?topic=Interstellar%20Mythos&stream=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51324 - "POST /api/pro/topics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38784 - "POST /api/pro/books?topic=Post-Human%20Evolution&stream=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43422 - "POST /api/pro/books?topic=AI%20Mythos&stream=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35536 - "POST /api/pro/books?topic=Quantum%20Dreams&stream=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53370 - "POST /api/pro/books?topic=Future%20Societies&stream=false HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'api/index.py'. Reloading...

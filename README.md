@@ -19,6 +19,8 @@ npm run dev
 
 uvicorn api.index:app --port 8000
 
+kill -9 $(lsof -t -i:8000) ; source .venv/bin/activate && set -a && source .env.local && set +a && uvicorn api.index:app --reload --port 8000
+
 ## Local Development Setup
 
 Follow these steps to get the project running on your local machine.

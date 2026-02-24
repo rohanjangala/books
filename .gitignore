@@ -5,10 +5,10 @@ test_local.ipynb
 notes.md
 
 .env
-.env.local
 .next
 .env*.local
 .env.*
+!.env.example
 
 Untitled.mp4
 
